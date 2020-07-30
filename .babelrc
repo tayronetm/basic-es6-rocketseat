@@ -1,0 +1,5 @@
+// CONVERT FEATURES ES6 ES7 ES8 TO BROWSER
+{
+		"presets": ["@babel/preset-env"],
+		"plugins": ["@babel/plugin-proposal-object-rest-spread"]
+}
