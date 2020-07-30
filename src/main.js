@@ -14,26 +14,47 @@ class App {
 		this.formRef.onsubmit = event => this.addRepo(event)
 	}
 
+	setLoading(loading = true) {
+		if (loading === true) {
+			let loadingEl = document.createElement('span');
+			loadingEl.appendChild(document.createTextNode('Carregando'));
+			loadingEl.setAttribute('id', 'loading');
+
+			this.formRef.appendChild(loadingEl);
+		} else {
+			document.getElementById('loading').remove();
+		}
+	}
+
 	async addRepo(event) {
 		// PREVENIR QUE A PAGINA RECARREGUE
 		event.preventDefault();
-
+		// PEGAR VAOR DO INPUT
 		const repoInput = this.inputRef.value;
-
+		// SE NÃO TIVER VALOR NÃO FAÇA NADA
 		if (repoInput.length === 0) return;
+		// CARREGUE O ELEMENTO CARREGANDO... ANTES DA REQUISIÇÃO
+		this.setLoading(true);
+		try{
+			const response = await api.get(`https://api.github.com/repos/tayronetm/${repoInput}`);
+			// DESTRUCT REQUEST
+			const { name, description, html_url, owner: { avatar_url } } = response.data;
+			// ADCIONANDO RESPONSE A LISTA
+			this.repos.push({
+				name,
+				description,
+				avatar_url,
+				html_url
+			})
+			// RENDERIZAR HTML COM AS PROPRIEDADES
+			this.render();
+		} 
+		catch (err) {
+			alert('Repositorio não existe');
+		}
+		// REMOVA O ELEMENTO CARREGANDO... DEPOIS DA REQUISIÇÃO
 
-		const response = await api.get(`https://api.github.com/repos/tayronetm/${repoInput}`);
-
-		console.log(response)
-
-		this.repos.push({
-			name: 'rocketseat.com.br',
-			description: 'Tire a sua ideia do papel e dê vida à sua startup',
-			avatar_url: 'https://avatars0.githubusercontent.com/u/28929274?v=4',
-			html_url: 'http://github.com/rocketseat/rocketseat.com.br'
-		})
-
-		this.render();
+		this.setLoading(false);
 	}
 
 	render() {
